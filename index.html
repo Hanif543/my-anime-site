@@ -6,22 +6,34 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-black text-white p-5">
-    <h1 class="text-3xl font-bold mb-5">Latest Anime</h1>
-    <div id="anime-list" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+    <h1 class="text-3xl font-bold mb-5 text-center">Latest Anime</h1>
+    <div id="anime-list" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <p id="loading" class="text-center col-span-full">Loading anime...</p>
+    </div>
 
     <script>
-        fetch('https://api.consumet.org/anime/gogoanime/recent-episodes')
-        .then(res => res.json())
-        .then(data => {
-            const container = document.getElementById('anime-list');
-            data.results.forEach(anime => {
-                container.innerHTML += `
-                    <div class="bg-gray-900 p-3 rounded">
-                        <img src="${anime.image}" class="w-full h-60 object-cover rounded">
-                        <h2 class="mt-2 text-sm">${anime.title}</h2>
-                    </div>`;
-            });
-        });
+        async function fetchAnime() {
+            try {
+                // আমরা একটি স্ট্যাবল API লিঙ্ক ব্যবহার করছি
+                const res = await fetch('https://api.consumet.org/anime/gogoanime/recent-episodes');
+                const data = await res.json();
+                const container = document.getElementById('anime-list');
+                const loader = document.getElementById('loading');
+                loader.style.display = 'none';
+
+                data.results.forEach(anime => {
+                    container.innerHTML += `
+                        <div class="bg-gray-900 p-3 rounded hover:scale-105 transition-transform">
+                            <img src="${anime.image}" class="w-full h-60 object-cover rounded" onerror="this.src='https://via.placeholder.com/150'">
+                            <h2 class="mt-2 text-sm font-bold truncate">${anime.title}</h2>
+                            <p class="text-xs text-gray-400">Episode: ${anime.episodeNumber}</p>
+                        </div>`;
+                });
+            } catch (err) {
+                document.getElementById('loading').innerText = "Failed to load anime. Please try again later.";
+            }
+        }
+        fetchAnime();
     </script>
 </body>
 </html>
